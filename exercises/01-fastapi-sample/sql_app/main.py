@@ -62,7 +62,7 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = db_session, curren
     items = crud.get_items(db, skip=skip, limit=limit)
     return items
 
-@app.get("/me/items/", response_model=List[schemas.Item])
+@app.get("/me/items", response_model=List[schemas.Item])
 def read_items(skip: int = 0, limit: int = 100, db: Session = db_session, current_user_id: str = Depends(auth.get_current_user_id)):
     items = crud.get_owner_items(db, current_user_id, skip=skip, limit=limit)
     return items
