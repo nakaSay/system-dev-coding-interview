@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 ALGORITHM = "HS256"
 
 # 暗号化に使用する鍵情報
-SECRET_KEY = "SECRET_KEY"
+SECRET_KEY = "SECRET_KEY123"
+
 def create_tokens(user_id: int):
     """パスワード認証を行い、トークンを生成"""
     # ペイロード作成
@@ -17,6 +18,6 @@ def create_tokens(user_id: int):
     }
 
     # トークン作成（本来は'SECRET_KEY123'はもっと複雑にする）
-    x_api_token = jwt.encode(access_payload, 'SECRET_KEY123', algorithm='HS256')
+    x_api_token = jwt.encode(access_payload, SECRET_KEY, algorithm=ALGORITHM)
 
     return {'x_api_token': x_api_token, 'token_type': 'bearer'}
