@@ -63,10 +63,47 @@ def test_read_users(test_db, client):
     )
     assert response.status_code == 200, response.text
     data = response.json()
-    data = data[:len(item_titles)]
     for i, user in enumerate(data):
         assert user["email"] == test_users[i]["email"]
         assert user["id"] == user_ids[i]
+
+# ユーザー削除&取得
+def test_delete_user(test_db, client):
+    user_ids, user_tokens = utils.create_users_and_items(client, test_users, item_titles, item_descriptions)
+
+    # タスク作成
+    ind = 0
+    user_id = user_ids[ind]
+    token = user_tokens[ind]
+    title = item_titles[ind]
+    descriptions = item_descriptions[ind]
+    headers = {"Authorization": f"Bearer {user_tokens[ind]}"}
+    response = client.post(
+        f"/users/{user_ids[ind]}/items/", 
+        headers=headers,
+        json={"title": title, "description": descriptions},
+    )
+
+    # 削除の確認
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.get(f"/users/{user_id}/delete", headers=headers)
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["id"] == user_id
+    assert data["is_active"] == False
+
+    # タスク移動の確認
+    response = client.get(
+        "/users/",
+        headers=headers
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    for i, user in enumerate(data):
+        if user["id"] != user_id and user["is_active"] == True:
+            assert user["items"][ind]["title"] == item_titles[ind]
+            break
+
 
 # タスク作成
 def test_create_items(test_db, client):
