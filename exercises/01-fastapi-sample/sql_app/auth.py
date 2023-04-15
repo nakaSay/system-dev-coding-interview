@@ -45,7 +45,7 @@ def verify_jwt(token: str):
         )
     return payload
 
-async def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)):
+async def get_current_user_id(token: HTTPAuthorizationCredentials = Depends(security)):
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
