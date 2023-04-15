@@ -50,6 +50,21 @@ def read_user(user_id: int, db: Session = db_session, current_user_id: str = Dep
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+@app.get("/users/{user_id}/delete", response_model=schemas.User)
+def read_user(user_id: int, db: Session = db_session, current_user_id: str = Depends(auth.get_current_user_id), skip: int = 0, limit: int = 100,):
+    delete_user = crud.get_user(db, user_id=user_id)
+    if delete_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    delete_user.is_active = False
+
+    first_active_user = crud.get_first_active_user(db, delete_user.id)
+    for item in delete_user.items:
+        item.owner_id = first_active_user.id
+
+    crud.update_user(db, delete_user)
+    crud.update_user(db, first_active_user)
+
+    return delete_user
 
 @app.post("/users/{user_id}/items/", response_model=schemas.Item)
 def create_item_for_user(
