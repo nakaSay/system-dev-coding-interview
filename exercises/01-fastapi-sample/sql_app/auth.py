@@ -19,7 +19,7 @@ def create_tokens(user_id: int):
     """パスワード認証を行い、トークンを生成"""
     # ペイロード作成
     access_payload = {
-        'exp': datetime.utcnow() + timedelta(minutes=60),
+        'exp': datetime.utcnow() + timedelta(days=1),
         'user_id': user_id,
     }
 
