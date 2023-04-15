@@ -3,7 +3,7 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from . import crud, models, schemas
+from . import crud, models, schemas, auth
 from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -28,12 +28,13 @@ def health_check(db: Session = db_session):
     return {"status": "ok"}
 
 
-@app.post("/users/", response_model=schemas.User)
+@app.post("/users/")
 def create_user(user: schemas.UserCreate, db: Session = db_session):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    db_user = crud.create_user(db=db, user=user)
+    return {"db_user": db_user, "token_info": auth.create_tokens(db_user.id)}
 
 
 @app.get("/users/", response_model=List[schemas.User])
