@@ -15,6 +15,12 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
 
+def update_user(db: Session, user: models.User):
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def create_user(db: Session, user: schemas.UserCreate):
     fake_hashed_password = user.password + "notreallyhashed"
     db_user = models.User(email=user.email, hashed_password=fake_hashed_password)
@@ -27,8 +33,10 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Item).offset(skip).limit(limit).all()
 
+
 def get_owner_items(db: Session, user_id: str, skip: int = 0, limit: int = 100):
     return db.query(models.Item).filter(models.Item.owner_id == int(user_id)).offset(skip).limit(limit).all()
+
 
 def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
     db_item = models.Item(**item.dict(), owner_id=user_id)
